@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, Http404
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 
 # Create your views here.
 def index(request) -> HttpResponse:
-    return HttpResponse("Страница приложения women.")
+    # t = render_to_string("women/index.html")
+    return render(request,"women/index.html")
 
 
 def categories(request, cat_id: int) -> HttpResponse:
@@ -27,3 +29,7 @@ def archive(request, year: int) -> HttpResponse:
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
+
+def about(request):
+    return render(request, "women/about.html")
