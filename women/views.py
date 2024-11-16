@@ -1,11 +1,30 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, Http404
+from django.template.loader import render_to_string
 from django.urls import reverse
+
+menu = ["О сайте", "Добавить статью", "Обратная связь", "Войти"]
+
+
+class MyClass:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
 
 
 # Create your views here.
 def index(request) -> HttpResponse:
-    return HttpResponse("Страница приложения women.")
+    # t = render_to_string("women/index.html")
+    data = {
+        "title": "Главная страница",
+        "menu": menu,
+        "str": "lol",
+        "float": 1.235,
+        "set": {1, 2, 3, 4, 5},
+        "dict": {"key_1": "value_1", "key_2": "value_2"},
+        "obj": MyClass(10, 12)
+    }
+    return render(request, "women/index.html", context=data)
 
 
 def categories(request, cat_id: int) -> HttpResponse:
@@ -27,3 +46,8 @@ def archive(request, year: int) -> HttpResponse:
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
+
+
+def about(request):
+    data = {"title": "О сайте"}
+    return render(request, "women/about.html", context=data)
