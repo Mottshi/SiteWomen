@@ -30,7 +30,7 @@ def page_not_found(request, exception):
 
 
 def about(request):
-    data = {"title": "О сайте"}
+    data = {"title": "О сайте", "menu": menu}
     return render(request, "women/about.html", context=data)
 
 
