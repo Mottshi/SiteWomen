@@ -20,6 +20,13 @@ data_db = [
 
 ]
 
+cats_db = [
+    {'id': 1, 'name': 'Актрисы'},
+    {'id': 2, 'name': 'Певицы'},
+    {'id': 3, 'name': 'Спортсменки'},
+]
+
+
 
 # Create your views here.
 def index(request) -> HttpResponse:
@@ -27,6 +34,7 @@ def index(request) -> HttpResponse:
         "title": "Главная страница",
         "menu": menu,
         "posts": data_db,
+        "cat_selected": 0,
     }
     return render(request, "women/index.html", context=data)
 
@@ -54,5 +62,16 @@ def contact(request):
 
 def login(request):
     return HttpResponse(f"Авторизация")
+
+
+def show_category(request, cat_id):
+    data = {
+        "title": "Главная страница",
+        "menu": menu,
+        "posts": data_db,
+        "cat_selected": cat_id,
+    }
+    return render(request, "women/index.html", context=data)
+
 
 
