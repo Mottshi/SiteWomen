@@ -1,5 +1,10 @@
 {% extends "base.html" %}
+{% load women_tags %}
 
+
+{% block breadcrumbs %}
+    {% show_tags post %}
+{% endblock %}
 {% block content %}
 <h1>{{ post.title }}</h1>
 

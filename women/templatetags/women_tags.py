@@ -1,14 +1,21 @@
 from django import template
 import women.views as views
 
-register = template.Library()
+from women.models import Category, TagPost
 
-@register.simple_tag(name="getcats")
-def get_categories():
-    return views.cats_db
+register = template.Library()
 
 
 @register.inclusion_tag("women/list_categories.html")
 def show_categories(cat_selected=0):
-    cats = views.cats_db
+    cats = Category.objects.all()
     return {"cats": cats, "cat_selected": cat_selected}
+
+
+@register.inclusion_tag("women/list_tag.html")
+def show_tags(post=None):
+    if post:
+        tags = post.tags.all()
+    else:
+        tags = TagPost.objects.all()
+    return {"tags": tags}
