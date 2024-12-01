@@ -34,6 +34,7 @@ class Women(models.Model):
         indexes = [
             models.Index(fields=['-time_create']),
         ]
+        db_table = 'women'
 
     def get_absolute_url(self):
         return reverse("post", kwargs={"post_slug": self.slug})
@@ -49,6 +50,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        db_table = 'category'
+
 
 
 class TagPost(models.Model):
@@ -62,11 +66,18 @@ class TagPost(models.Model):
     def get_absolute_url(self):
         return reverse("tag", kwargs={"tag_slug": self.slug})
 
+    class Meta:
+        db_table = 'tag_post'
+
 
 
 class Husband(models.Model):
     name = models.CharField(max_length=255)
     age = models.IntegerField(null=True)
+    m_count = models.IntegerField(blank=True, default=0)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        db_table = 'husband'
