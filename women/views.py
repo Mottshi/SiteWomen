@@ -12,20 +12,10 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Войти", 'url_name': 'login'}
 ]
 
-data_db = [
-    {'id': 1, 'title': 'Анджелина Джоли', 'content': '''<h1>Анджелина Джоли</h1> (англ. Angelina Jolie[7], при рождении Войт (англ. Voight), ранее Джоли Питт (англ. Jolie Pitt); род. 4 июня 1975,
-     Лос-Анджелес, Калифорния, США) — американская актриса кино, телевидения и озвучивания, кинорежиссёр, сценаристка, продюсер, фотомодель, посол доброй воли ООН.
-    Обладательница премии «Оскар», трёх премий «Золотой глобус» (первая актриса в истории, три года подряд выигравшая премию) и двух «Премий Гильдии киноактёров США».''',
-    'is_published': True},
-    {'id': 2, 'title': 'Марго Робби', 'content': 'Биография Марго Робби', 'is_published': False},
-    {'id': 3, 'title': 'Джулия Робертс', 'content': 'Биография Джулия Робертс', 'is_published': True},
-
-]
-
 
 # Create your views here.
 def index(request) -> HttpResponse:
-    posts = Women.published.all()
+    posts = Women.published.all().select_related("cat")
     data = {
         "title": "Главная страница",
         "menu": menu,
@@ -81,7 +71,7 @@ def show_category(request, cat_slug):
 
 def show_tag_postlist(request, tag_slug):
     tag = get_object_or_404(TagPost, slug=tag_slug)
-    posts = tag.women.filter(is_published=Women.Status.PUBLISHED)
+    posts = tag.women.filter(is_published=Women.Status.PUBLISHED).select_related("cat")
     data = {
         "title": f"Тег {tag.tag}",
         "menu": menu,
