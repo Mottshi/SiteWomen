@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from django_extensions.db.fields import AutoSlugField
+from slugify import slugify
 
 
 # Create your models here.
@@ -13,15 +15,15 @@ class Women(models.Model):
     class Status(models.IntegerChoices):
         DRAFT = 0, "Черновик"
         PUBLISHED = 1, "Опубликовано"
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
-    content = models.TextField(blank=True)
-    time_create = models.DateTimeField(auto_now_add=True)
-    time_update = models.DateTimeField(auto_now=True)
-    is_published = models.BooleanField(default=Status.DRAFT, choices=Status)
-    cat = models.ForeignKey("Category", on_delete=models.PROTECT, related_name="posts")
-    tags = models.ManyToManyField("TagPost", related_name="women", blank=True)
-    husband = models.OneToOneField("Husband", on_delete=models.SET_NULL, null=True, blank=True, related_name="wife")
+    title = models.CharField(max_length=255, verbose_name="Заголовок")
+    slug = AutoSlugField(populate_from="title", slugify_function=slugify, verbose_name="Slug")
+    content = models.TextField(blank=True, verbose_name="Текст статьи")
+    time_create = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    time_update = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    is_published = models.IntegerField(default=Status.DRAFT, choices=Status, verbose_name="Статус")
+    cat = models.ForeignKey("Category", on_delete=models.PROTECT, related_name="posts", verbose_name="Категория")
+    tags = models.ManyToManyField("TagPost", related_name="women", blank=True, verbose_name="Теги")
+    husband = models.OneToOneField("Husband", on_delete=models.SET_NULL, null=True, blank=True, related_name="wife", verbose_name="Муж")
 
     objects = models.Manager()
     published = PublishedManager()
@@ -30,6 +32,8 @@ class Women(models.Model):
         return self.title
 
     class Meta:
+        verbose_name = "Известные женщины"
+        verbose_name_plural = "Изветсные женщины"
         ordering = ['-time_create']
         indexes = [
             models.Index(fields=['-time_create']),
@@ -51,6 +55,8 @@ class Category(models.Model):
         return self.name
 
     class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
         db_table = 'category'
 
 
