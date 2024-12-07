@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, Http404
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.template.defaultfilters import slugify
+from .forms import *
 
 from .models import Women, Category, TagPost
 
@@ -46,7 +47,24 @@ def show_post(request, post_slug):
 
 
 def addpage(request):
-    return HttpResponse(f"Добавление статьи")
+    if request.method == "POST":
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            try:
+                tags = form.cleaned_data.pop("tags")
+                new_woman = Women.objects.create(**form.cleaned_data)
+                new_woman.tags.set(tags)
+                return redirect("home")
+            except:
+                form.add_error(None, "Ошибка заполнения формы")
+    else:
+        form = AddPostForm()
+    data = {
+        "menu": menu,
+        "title": "Добавление статьи",
+        "form": form
+    }
+    return render(request, "women/addpage.html", context=data)
 
 
 def contact(request):
