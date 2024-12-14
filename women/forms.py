@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
-from .models import Category, Husband, TagPost
+from .models import Category, Husband, TagPost, Women
 
 
 @deconstructible
@@ -20,19 +20,26 @@ class RussianValidator:
 
 
 
-class AddPostForm(forms.Form):
-    title = forms.CharField(max_length=255, min_length=5, label="Имя", widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Введите имя'}),
-                            error_messages={
-                                "min_length": "Заголовок слишком короткий",
-                                "required": "Без заголовка никак",
-                                            },
-                            validators=[
-                                RussianValidator(),
-                            ])
-    # slug = forms.SlugField(max_length=255)
-    content = forms.CharField(widget=forms.Textarea(attrs={"cols":50, "rows":5}), required=False, label="Введите описание")
-    is_published = forms.BooleanField(required=False, label="Статус", initial=True)
-    tags = forms.ModelMultipleChoiceField(queryset=TagPost.objects.all(), label="Выберите теги", required=False)
+class AddPostForm(forms.ModelForm):
+
     cat = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label="Категория не выбрана")
-    husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label="Не замужем")
-    str().isascii()
+    husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label="Не замужем",)
+
+    class Meta:
+        model =  Women
+        fields = ['title', 'content', 'is_published', 'cat', 'husband', 'tags']
+        widgets = {
+            "title": forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Введите имя'}),
+            "content": forms.Textarea(attrs={"cols":50, "rows":5}),
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) > 100:
+            raise ValidationError("Длина превышает 50 символом")
+        return title
+
+
+
+class UploadFileForm(forms.Form):
+    file = forms.ImageField(label="Файл")
