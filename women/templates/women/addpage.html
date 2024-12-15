@@ -3,7 +3,7 @@
 {% block content %}
     <h1>{{ title }}</h1>
     <p>Содержимое страницы</p>
-    <form action="" method="POST">
+    <form action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {% for f in form %}
             <p><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}</p>
