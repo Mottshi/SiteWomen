@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.template.defaultfilters import slugify
 from .forms import *
 import uuid
-
 from .models import Women, Category, TagPost
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
@@ -35,6 +34,7 @@ def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
 
 
+
 def about(request):
     if request.method == "POST":
         form = UploadFileForm(request.POST, request.FILES)
@@ -59,7 +59,7 @@ def show_post(request, post_slug):
 
 def addpage(request):
     if request.method == "POST":
-        form = AddPostForm(request.POST)
+        form = AddPostForm(request.POST, request.FILES)
         if form.is_valid():
             # try:
             #     tags = form.cleaned_data.pop("tags")

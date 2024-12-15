@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 from django.db.models.functions import Length
+from django.utils.safestring import mark_safe
 
 from .models import Women, Category
 
@@ -29,23 +30,26 @@ class MarriedFilter(admin.SimpleListFilter):
 
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
-    fields = ("title", "content", "slug", "cat", "husband", "tags")
-    readonly_fields = ("slug",)
-    filter_horizontal = ("tags", )
-    list_display = ("title", "time_create", "is_published", "cat", "brief_info")
-    list_display_links = ("title", )
-    ordering = ("time_create", "title")
-    list_editable = ("is_published",)
-    list_per_page = 5
-    actions = ["set_published", "set_draft"]
-    search_fields = ("title", "cat__name")
+    fields = ("title", "content", "slug", "cat", "husband", "tags", "photo", "post_photo") #отображаемые поля для редактирования
+    readonly_fields = ("slug", "post_photo") #поля только для чтения
+    filter_horizontal = ("tags", )#добавление тегов в режиме редактирования
+    list_display = ("title", "post_photo", "time_create", "is_published", "cat")#отображаемые поля в просмотре
+    list_display_links = ("title", )#кликабельные поля в просмотре
+    ordering = ("time_create", "title")#сортировка
+    list_editable = ("is_published",)#редактируемые поля в просмотре
+    list_per_page = 5#кол-во отображаемых записей
+    actions = ["set_published", "set_draft"]#добавление кастомных действий
+    search_fields = ("title", "cat__name")#поля для поиска
     list_filter = ("is_published", "cat__name", MarriedFilter) #добавление фильтров
+    save_on_top = True
 
 
     #добавляет новое поле
-    @admin.display(description="Краткое описание", ordering=Length("content"))
-    def brief_info(self, women: Women):
-        return f"Описание {len(women.content)} символов"
+    @admin.display(description="Изображения")
+    def post_photo(self, women: Women):
+        if women.photo:
+            return mark_safe(f"<img src=\"{women.photo.url}\" width=50>")
+        return ""
 
 
     #добавляет новое дествией над таблицей
