@@ -24,6 +24,7 @@ class Women(models.Model):
     cat = models.ForeignKey("Category", on_delete=models.PROTECT, related_name="posts", verbose_name="Категория")
     tags = models.ManyToManyField("TagPost", related_name="women", blank=True, verbose_name="Теги")
     husband = models.OneToOneField("Husband", on_delete=models.SET_NULL, null=True, blank=True, related_name="wife", verbose_name="Муж")
+    photo = models.ImageField(upload_to="photos/%Y/%m/%d", default=None, blank=True, null=True, verbose_name="Фото")
 
     objects = models.Manager()
     published = PublishedManager()

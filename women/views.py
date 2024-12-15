@@ -3,7 +3,8 @@ from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, Http404
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.template.defaultfilters import slugify
-
+from .forms import *
+import uuid
 from .models import Women, Category, TagPost
 
 menu = [{'title': "О сайте", 'url_name': 'about'},
@@ -13,6 +14,10 @@ menu = [{'title': "О сайте", 'url_name': 'about'},
 ]
 
 
+def handle_uploaded_file(f):
+    with open(f"uploads/{uuid.uuid4()}_{f.name}", 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 # Create your views here.
 def index(request) -> HttpResponse:
     posts = Women.published.all().select_related("cat")
@@ -29,8 +34,15 @@ def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
 
 
+
 def about(request):
-    data = {"title": "О сайте", "menu": menu}
+    if request.method == "POST":
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(form.cleaned_data["file"])
+    else:
+        form = UploadFileForm()
+    data = {"title": "О сайте", "menu": menu, "form": form}
     return render(request, "women/about.html", context=data)
 
 
@@ -46,7 +58,26 @@ def show_post(request, post_slug):
 
 
 def addpage(request):
-    return HttpResponse(f"Добавление статьи")
+    if request.method == "POST":
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            # try:
+            #     tags = form.cleaned_data.pop("tags")
+            #     new_woman = Women.objects.create(**form.cleaned_data)
+            #     new_woman.tags.set(tags)
+            #     return redirect("home")
+            # except:
+            #     form.add_error(None, "Ошибка заполнения формы")
+            form.save()
+            return redirect("home")
+    else:
+        form = AddPostForm()
+    data = {
+        "menu": menu,
+        "title": "Добавление статьи",
+        "form": form
+    }
+    return render(request, "women/addpage.html", context=data)
 
 
 def contact(request):
