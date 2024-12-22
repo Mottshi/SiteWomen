@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.template.defaultfilters import slugify
 from django.views import View
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 
 from .forms import *
 import uuid
@@ -93,6 +93,21 @@ class ShowTagPostListView(ListView):
         return context
 
 
+class ShowPostView(DetailView):
+    # model = Women
+    template_name = "women/post.html"
+    slug_url_kwarg = "post_slug"
+    context_object_name = "post"
+    extra_context = default_context.copy()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.object.title
+        return context
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
+
 def about(request):
     if request.method == "POST":
         form = UploadFileForm(request.POST, request.FILES)
@@ -103,16 +118,6 @@ def about(request):
     data = {"title": "О сайте", "menu": menu, "form": form}
     return render(request, "women/about.html", context=data)
 
-
-def show_post(request, post_slug):
-    post = get_object_or_404(Women, slug=post_slug)
-    data = {
-        "title": post.title,
-        "menu": menu,
-        "post": post,
-        "cat_selected": 1,
-    }
-    return render(request, "women/post.html", context=data)
 
 
 def contact(request):
