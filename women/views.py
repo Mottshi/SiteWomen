@@ -3,10 +3,10 @@ from typing import Any
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, Http404
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.template.defaultfilters import slugify
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, FormView
 
 from .forms import *
 import uuid
@@ -42,21 +42,31 @@ class WomenHomeView(ListView):
         return queryset
 
 
-class AddPageView(View):
+class AddPageView(FormView):
+    form_class = AddPostForm
+    template_name = "women/addpage.html"
+    success_url = reverse_lazy("home")
     extra_context = default_context.copy()
-    extra_context["title"] = "Добавление статьи"
 
-    def get(self, request: HttpRequest) -> HttpResponse:
-        self.extra_context["form"] = AddPostForm()
-        return render(request, "women/addpage.html", context=self.extra_context)
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
-    def post(self, request: HttpRequest) -> HttpResponse:
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect("/")
-        self.extra_context["form"] = form
-        return render(request, "women/addpage.html", context=self.extra_context)
+# class AddPageView(View):
+#     extra_context = default_context.copy()
+#     extra_context["title"] = "Добавление статьи"
+#
+#     def get(self, request: HttpRequest) -> HttpResponse:
+#         self.extra_context["form"] = AddPostForm()
+#         return render(request, "women/addpage.html", context=self.extra_context)
+#
+#     def post(self, request: HttpRequest) -> HttpResponse:
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return redirect("/")
+#         self.extra_context["form"] = form
+#         return render(request, "women/addpage.html", context=self.extra_context)
 
 
 class WomenCategoryView(ListView):
