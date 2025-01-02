@@ -22,8 +22,8 @@ class RussianValidator:
 
 class AddPostForm(forms.ModelForm):
 
-    cat = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label="Категория не выбрана")
-    husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label="Не замужем",)
+    cat = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label="Категория не выбрана", label="Категория")
+    husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label="Не замужем", label="Муж")
 
     class Meta:
         model =  Women
