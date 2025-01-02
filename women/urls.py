@@ -13,4 +13,6 @@ urlpatterns = [
     path("login/", views.login, name="login"),
     path("category/<slug:cat_slug>/", views.WomenCategoryView.as_view(), name="category"),
     path("tag/<slug:tag_slug>/", views.ShowTagPostListView.as_view(), name="tag"),
+    path("edit/<slug:slug>", views.UpdatePageView.as_view(), name="edit_page"),
+    path("delete/<slug:slug>", views.DeletePageView.as_view(), name="delete_page"),
 ]

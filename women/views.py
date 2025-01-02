@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.template.defaultfilters import slugify
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
 
 from .forms import *
 import uuid
@@ -42,31 +42,32 @@ class WomenHomeView(ListView):
         return queryset
 
 
-class AddPageView(FormView):
+class AddPageView(CreateView):
     form_class = AddPostForm
     template_name = "women/addpage.html"
     success_url = reverse_lazy("home")
     extra_context = default_context.copy()
+    extra_context["title"] = "Добавление статьи"
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
 
-# class AddPageView(View):
-#     extra_context = default_context.copy()
-#     extra_context["title"] = "Добавление статьи"
-#
-#     def get(self, request: HttpRequest) -> HttpResponse:
-#         self.extra_context["form"] = AddPostForm()
-#         return render(request, "women/addpage.html", context=self.extra_context)
-#
-#     def post(self, request: HttpRequest) -> HttpResponse:
-#         form = AddPostForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("/")
-#         self.extra_context["form"] = form
-#         return render(request, "women/addpage.html", context=self.extra_context)
+
+class UpdatePageView(UpdateView):
+    model = Women
+    fields = ["title", "content", "photo", "is_published", "cat"]
+    template_name = "women/addpage.html"
+    success_url = reverse_lazy("home")
+    extra_context = default_context.copy()
+    extra_context["title"] = "Редактирование статьи"
+
+
+class DeletePageView(DeleteView):
+    model = Women
+    template_name = "women/deletepage.html"
+    context_object_name = "post"
+    success_url = reverse_lazy("home")
+    extra_context = default_context.copy()
+    extra_context["title"] = "Удаление статьи"
+
 
 
 class WomenCategoryView(ListView):
