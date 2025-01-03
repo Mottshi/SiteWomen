@@ -7,22 +7,12 @@ from django.urls import reverse, reverse_lazy
 from django.template.defaultfilters import slugify
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView, DeleteView
+from .utils import DataMixin
 
 from .forms import *
 import uuid
 from .models import Women, Category, TagPost
 
-menu = [{'title': "О сайте", 'url_name': 'about'},
-        {'title': "Добавить статью", 'url_name': 'add_page'},
-        {'title': "Обратная связь", 'url_name': 'contact'},
-        {'title': "Войти", 'url_name': 'login'}
-]
-
-default_context = {
-    "title": "Главная страница",
-    'menu': menu,
-    'cat_selected': 0,
-}
 
 
 def handle_uploaded_file(f):
@@ -32,88 +22,78 @@ def handle_uploaded_file(f):
 # Create your views here.
 
 
-class WomenHomeView(ListView):
+class WomenHomeView(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = "posts"
-    extra_context = default_context.copy()
+    page_title = "Главная страница"
+    cat_selected = 0
 
     def get_queryset(self):
         queryset = Women.objects.all().select_related("cat")
         return queryset
 
 
-class AddPageView(CreateView):
+class AddPageView(DataMixin, CreateView):
     form_class = AddPostForm
     template_name = "women/addpage.html"
     success_url = reverse_lazy("home")
-    extra_context = default_context.copy()
-    extra_context["title"] = "Добавление статьи"
+    page_title = "Добавление статьи"
 
 
 
-class UpdatePageView(UpdateView):
+class UpdatePageView(DataMixin, UpdateView):
     model = Women
     fields = ["title", "content", "photo", "is_published", "cat"]
     template_name = "women/addpage.html"
     success_url = reverse_lazy("home")
-    extra_context = default_context.copy()
-    extra_context["title"] = "Редактирование статьи"
+    page_title = "Редактирование статьи"
 
 
-class DeletePageView(DeleteView):
+class DeletePageView(DataMixin, DeleteView):
     model = Women
     template_name = "women/deletepage.html"
     context_object_name = "post"
     success_url = reverse_lazy("home")
-    extra_context = default_context.copy()
-    extra_context["title"] = "Удаление статьи"
+    page_title = "Удаление статьи"
 
 
 
-class WomenCategoryView(ListView):
+class WomenCategoryView(DataMixin, ListView):
     template_name = "women/index.html"
     context_object_name = "posts"
-    extra_context = default_context.copy()
-    extra_context["title"] = "Главная страница"
 
     def get_queryset(self):
         return Women.published.filter(cat__slug=self.kwargs["cat_slug"]).select_related("cat")
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         category = get_object_or_404(Category, slug=self.kwargs["cat_slug"])
-        context["title"] = "Категория - " + category.name
-        context["cat_selected"] = category.pk
+        context = super().get_context_data(title=f"Категория {category.name}",
+                                           cat_selected=category.pk)
         return context
 
 
-class ShowTagPostListView(ListView):
+class ShowTagPostListView(DataMixin, ListView):
     model = Women
     context_object_name = "posts"
     template_name = "women/index.html"
-    extra_context = default_context.copy()
-    extra_context["title"] = "Главная страница"
 
     def get_queryset(self):
         return Women.published.filter(tags__slug=self.kwargs["tag_slug"]).select_related("cat")
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         tag = get_object_or_404(TagPost, slug=self.kwargs["tag_slug"])
-        context["title"] = tag.tag
+        context = super().get_context_data(title=tag.tag)
         return context
 
 
-class ShowPostView(DetailView):
-    # model = Women
+class ShowPostView(DataMixin, DetailView):
     template_name = "women/post.html"
     slug_url_kwarg = "post_slug"
     context_object_name = "post"
-    extra_context = default_context.copy()
+
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = self.object.title
+        context = super().get_context_data(title=self.object.title)
         return context
 
     def get_object(self, queryset=None):
@@ -126,7 +106,7 @@ def about(request):
             handle_uploaded_file(form.cleaned_data["file"])
     else:
         form = UploadFileForm()
-    data = {"title": "О сайте", "menu": menu, "form": form}
+    data = {"title": "О сайте", "form": form}
     return render(request, "women/about.html", context=data)
 
 
