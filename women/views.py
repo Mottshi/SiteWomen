@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpRequest, HttpResponseNotFound, Http404
 from django.template.loader import render_to_string
@@ -100,14 +101,13 @@ class ShowPostView(DataMixin, DetailView):
         return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
 
 def about(request):
-    if request.method == "POST":
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            handle_uploaded_file(form.cleaned_data["file"])
-    else:
-        form = UploadFileForm()
-    data = {"title": "О сайте", "form": form}
-    return render(request, "women/about.html", context=data)
+    contact_list = Women.published.all()
+    paginator = Paginator(contact_list, 3)
+    page_num =  request.GET.get("page")
+    current_page = paginator.get_page(page_num)
+
+
+    return render(request, "women/about.html", context={"title": "О сайте", "current_page": current_page})
 
 
 
