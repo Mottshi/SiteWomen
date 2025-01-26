@@ -3,6 +3,7 @@ from django.views.generic.base import ContextMixin
 menu = [{'title': "О сайте", 'url_name': 'about'},
         {'title': "Добавить статью", 'url_name': 'add_page'},
         {'title': "Обратная связь", 'url_name': 'contact'},
+        {'title': "Войти", 'url_name': 'users:login'}
 ]
 
 
@@ -10,7 +11,6 @@ class DataMixin(ContextMixin):
     paginate_by = 2
     page_title = None
     cat_selected = None
-    extra_context = {"menu": menu}
 
 
     def get_context_data(self, **kwargs):
